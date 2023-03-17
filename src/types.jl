@@ -4,7 +4,7 @@ A struct for storing KEGG enzyme information.
 $(FIELDS)
 """
 @with_repr mutable struct KEGGEnzyme
-    ec::String
+    id::String
     name::Maybe{String}
     reactions::Maybe{Vector{String}} #one enzyme can have multiple reactions
 end
