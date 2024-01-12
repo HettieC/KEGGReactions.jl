@@ -22,16 +22,12 @@ $(FIELDS)
 """
 mutable struct KEGGReaction
     id::Int64
-    equation::String
     name::String
+    stoichiometry::String
     ec::Vector{String} # multiple ECs can be assigned to a single reaction
     pathway::Vector{String} #multiple pathways possible
-    rhea::Int64
-    istransport::Bool
-    isbalanced::Bool
+    dblinks::Dict{String,Vector{String}}
 end
-
-KEGGReaction() = KEGGReaction(0, "", "", "", nothing, nothing, false, false)
 
 """
 $(TYPEDEF)

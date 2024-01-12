@@ -108,7 +108,7 @@ function get_kegg_rxn(rxn_id::String)
         else
             for ln in lines
                 if startswith(ln, "NAME")
-                    out["rxn_name"] = strip(String(split(ln; limit = 2)[2]))
+                    out["name"] = strip(String(split(ln; limit = 2)[2]))
                 elseif startswith(ln, "EQUATION")
                     subs_prods = split(strip(split(ln, "EQUATION")[2]), "<=>")
                     subs = [strip(x) for x in split(subs_prods[1], " + ")]
@@ -133,6 +133,8 @@ function get_kegg_rxn(rxn_id::String)
                         end
                     end
                     out["stoich"] = stoich
+                elseif startswith(ln, "ENZYME")
+                    out["ec"] = [String(strip(split(ln; limit = 2)[2]))]
                 elseif startswith(ln, "PATHWAY")
                     out["pathway"] = [String(strip(split(ln; limit = 2)[2]))]
                 elseif startswith(strip(ln), "rn")
@@ -144,7 +146,14 @@ function get_kegg_rxn(rxn_id::String)
                 end
             end
         end
-        return out
+        return KEGGReaction(
+            id=rxn_id,
+            name = out["name"],
+            stoichiometry = out["stoich"],
+            ec = out["ec"],
+            pathway = out["pathway"],
+            dblinks = Dict("RHEA" => out["RHEA"])
+        )
     end
 end
 
