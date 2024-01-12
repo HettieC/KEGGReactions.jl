@@ -5,8 +5,8 @@ $(FIELDS)
 """
 mutable struct KEGGEnzyme
     id::String
-    name::Maybe{String}
-    reactions::Maybe{Vector{String}} #one enzyme can have multiple reactions
+    name::String
+    reactions::Vector{String} #one enzyme can have multiple reactions
 end
 
 
@@ -19,10 +19,10 @@ $(FIELDS)
 mutable struct KEGGReaction
     id::Int64
     equation::String
-    name::Maybe{String}
-    ec::Maybe{Vector{String}} # multiple ECs can be assigned to a single reaction
-    pathway::Maybe{Vector{String}} #multiple pathways possible
-    rhea::Maybe{Int64} 
+    name::String
+    ec::Vector{String} # multiple ECs can be assigned to a single reaction
+    pathway::Vector{String} #multiple pathways possible
+    rhea::Int64
     istransport::Bool
     isbalanced::Bool
 end
@@ -36,8 +36,8 @@ $(FIELDS)
 """
 struct KEGGMetabolite
     id::Int64
-    name::Maybe{String}
-    charge::Maybe{Int64}
-    formula::Maybe{String}
-    dblinks::Maybe{Vector{String}}
+    name::String
+    charge::Int64
+    formula::String
+    dblinks::Vector{String}
 end
