@@ -34,11 +34,11 @@ $(TYPEDEF)
 A struct for storing KEGG metabolite information.
 $(FIELDS)
 """
-struct KEGGMetabolite
-    id::Int64
+@kwdef mutable struct KEGGMetabolite
+    id::String
     name::String
-    charge::Int64
     formula::String
+    mass::Float64
     dblinks::Vector{String}
 end
 

@@ -164,25 +164,27 @@ export get_kegg_rxn
 $(TYPEDSIGNATURES)
 Get the name and formula of a compound.
 """
-function get_kegg_cmpd(cmpd_id::String)
+function get_kegg_met(met_id::String)
     req = nothing
     try
-        req = HTTP.request("GET", "https://rest.kegg.jp/get/$cmpd_id")
+        req = HTTP.request("GET", "https://rest.kegg.jp/get/$met_id")
     catch
         req = nothing
-        print("No entry matching this id: $cmpd_id")
+        print("No entry matching this id: $met_id")
     end
     out = Dict{String,Any}()
     out["dblinks"] = String[]
     lines = split(String(req.body), "\n")
     if split(lines[1])[3] != "Compound"
-        throw(error("Entry $cmpd_id not a compound"))
+        throw(error("Entry $met_id not a compound"))
     else
         for ln in lines
             if startswith(ln, "NAME")
                 out["name"] = String(strip(split(ln; limit = 2)[2]))
             elseif startswith(ln, "FORMULA")
                 out["formula"] = String(strip(split(ln; limit = 2)[2]))
+            elseif startswith(ln,"MOL_WEIGHT")
+                out["mass"] = parse(Float64, strip(split(ln, "MOL_WEIGHT")[2]))
             elseif contains(ln, "PubChem:")
                 push!(out["dblinks"], String(strip(split(ln, "DBLINKS")[end])))
             elseif contains(ln, "ChEBI:")
@@ -190,9 +192,15 @@ function get_kegg_cmpd(cmpd_id::String)
             end
         end
     end
-    return out
+    return Types.KEGGMetabolite(
+        id = met_id,
+        name = out["name"],
+        formula = out["formula"],
+        mass = out["mass"],
+        dblinks = out["dblinks"]
+    )
 end
 
-export get_kegg_cmpd
+export get_kegg_met
 
 end
