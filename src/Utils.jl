@@ -2,7 +2,7 @@ module Utils
 
 using HTTP
 using DocStringExtensions
-using .Types
+using ..Types
 
 """
 $(TYPEDSIGNATURES)
