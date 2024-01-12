@@ -3,7 +3,7 @@ $(TYPEDEF)
 A struct for storing KEGG enzyme information.
 $(FIELDS)
 """
-@with_repr mutable struct KEGGEnzyme
+mutable struct KEGGEnzyme
     id::String
     name::Maybe{String}
     reactions::Maybe{Vector{String}} #one enzyme can have multiple reactions
@@ -16,7 +16,7 @@ A struct for storing KEGG reaction information. Does not store the metabolite
 information. 
 $(FIELDS)
 """
-@with_repr mutable struct KEGGReaction
+mutable struct KEGGReaction
     id::Int64
     equation::String
     name::Maybe{String}
@@ -34,7 +34,7 @@ $(TYPEDEF)
 A struct for storing KEGG metabolite information.
 $(FIELDS)
 """
-@with_repr struct KEGGMetabolite
+struct KEGGMetabolite
     id::Int64
     name::Maybe{String}
     charge::Maybe{Int64}
