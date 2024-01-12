@@ -20,10 +20,10 @@ A struct for storing KEGG reaction information. Does not store the metabolite
 information. 
 $(FIELDS)
 """
-mutable struct KEGGReaction
-    id::Int64
+@kwdef mutable struct KEGGReaction
+    id::String
     name::String
-    stoichiometry::String
+    stoichiometry::Dict{String,Int64}
     ec::Vector{String} # multiple ECs can be assigned to a single reaction
     pathway::Vector{String} #multiple pathways possible
     dblinks::Dict{String,Vector{String}}

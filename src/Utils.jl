@@ -141,13 +141,13 @@ function get_kegg_rxn(rxn_id::String)
                 elseif startswith(strip(ln), "rn")
                     push!(out["pathway"], String(strip(ln)))
                 elseif contains(ln, "RHEA:") && !haskey(out, "RHEA")
-                    out["RHEA"] = [parse(Int64, split(ln)[3])]
+                    out["RHEA"] = [String(split(ln)[3])]
                 elseif contains(ln, "RHEA:")
-                    append!(out["RHEA"], parse(Int64, split(ln)[3]))
+                    append!(out["RHEA"], String(split(ln)[3]))
                 end
             end
         end
-        return KEGGReaction(
+        return Types.KEGGReaction(;
             id=rxn_id,
             name = out["name"],
             stoichiometry = out["stoich"],
