@@ -1,3 +1,4 @@
+module Utils
 """
 $(TYPEDSIGNATURES)
 Get the whole enzyme list from KEGG 
@@ -143,6 +144,8 @@ function get_kegg_rxn(rxn_id::String)
     end
 end
 
+export get_kegg_rxn
+
 """
 $(TYPEDSIGNATURES)
 Get the name and formula of a compound.
@@ -176,3 +179,6 @@ function get_kegg_cmpd(cmpd_id::String)
     return out
 end
 
+export get_kegg_cmpd
+
+end

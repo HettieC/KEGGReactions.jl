@@ -1,3 +1,5 @@
+module Types
+
 """
 $(TYPEDEF)
 A struct for storing KEGG enzyme information.
@@ -40,4 +42,6 @@ struct KEGGMetabolite
     charge::Int64
     formula::String
     dblinks::Vector{String}
+end
+
 end
