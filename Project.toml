@@ -2,3 +2,6 @@ name = "KEGGReactions"
 uuid = "799c38b7-144e-486e-b979-53a96f87ce7a"
 authors = ["HettieC <hester.chapman@btinternet.com>"]
 version = "0.1.0"
+
+[deps]
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
