@@ -1,7 +1,7 @@
 module KEGGReactions
 
 include("Types.jl")
-include("cache.jl")
+include("Cache.jl")
 include("Utils.jl")
 
 end # module KEGGReactions
