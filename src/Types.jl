@@ -1,5 +1,7 @@
 module Types
 
+using DocStringExtensions
+
 """
 $(TYPEDEF)
 A struct for storing KEGG enzyme information.

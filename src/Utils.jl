@@ -1,4 +1,8 @@
 module Utils
+
+using HTTP
+using DocStringExtensions
+
 """
 $(TYPEDSIGNATURES)
 Get the whole enzyme list from KEGG 
