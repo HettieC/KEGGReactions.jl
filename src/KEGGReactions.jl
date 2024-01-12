@@ -3,8 +3,8 @@ module KEGGReactions
 using HTTP
 using DocStringExtensions
 
-include("types.jl")
+include("Types.jl")
 include("cache.jl")
-include("utils.jl")
+include("Utils.jl")
 
 end # module KEGGReactions
