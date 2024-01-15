@@ -173,7 +173,7 @@ function get_kegg_met(met_id::String)
         print("No entry matching this id: $met_id")
     end
     out = Dict{String,Any}()
-    out["dblinks"] = String[]
+    out["dblinks"] = Dict{String,Vector{String}}()
     lines = split(String(req.body), "\n")
     if split(lines[1])[3] != "Compound"
         throw(error("Entry $met_id not a compound"))
@@ -186,9 +186,9 @@ function get_kegg_met(met_id::String)
             elseif startswith(ln,"MOL_WEIGHT")
                 out["mass"] = parse(Float64, strip(split(ln, "MOL_WEIGHT")[2]))
             elseif contains(ln, "PubChem:")
-                push!(out["dblinks"], String(strip(split(ln, "DBLINKS")[end])))
+                out["dblinks"]["PubChem"] = [String(strip(split(ln, "PubChem: ")[2]))]
             elseif contains(ln, "ChEBI:")
-                push!(out["dblinks"], String(strip(split(ln, "DBLINKS")[end])))
+                out["dblinks"]["ChEBI"] = [String(strip(split(ln, "ChEBI: ")[2]))]
             end
         end
     end

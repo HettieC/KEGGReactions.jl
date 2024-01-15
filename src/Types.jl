@@ -39,7 +39,7 @@ $(FIELDS)
     name::String
     formula::String
     mass::Float64
-    dblinks::Vector{String}
+    dblinks::Dict{String,Vector{String}}
 end
 
 end
