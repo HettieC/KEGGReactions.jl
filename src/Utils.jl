@@ -183,8 +183,7 @@ function get_kegg_met(met_id::String)
                 out["name"] = String(strip(split(ln; limit = 2)[2]))
             elseif startswith(ln, "FORMULA")
                 out["formula"] = String(strip(split(ln; limit = 2)[2]))
-            elseif startswith(ln,"MOL_WEIGHT")
-                out["mass"] = parse(Float64, strip(split(ln, "MOL_WEIGHT")[2]))
+
             elseif contains(ln, "PubChem:")
                 out["dblinks"]["PubChem"] = [String(strip(split(ln, "PubChem: ")[2]))]
             elseif contains(ln, "ChEBI:")
@@ -195,8 +194,7 @@ function get_kegg_met(met_id::String)
     return Types.KEGGMetabolite(
         id = met_id,
         name = out["name"],
-        formula = out["formula"],
-        mass = out["mass"],
+        formula = haskey(out, "formula") ? out["formula"] : nothing,
         dblinks = out["dblinks"]
     )
 end

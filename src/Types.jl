@@ -37,9 +37,8 @@ $(FIELDS)
 @kwdef mutable struct KEGGMetabolite
     id::String
     name::String
-    formula::String
-    mass::Float64
-    dblinks::Dict{String,Vector{String}}
+    formula::Union{String,Nothing}
+    dblinks::Union{Dict{String,Vector{String}},Nothing}
 end
 
 end
