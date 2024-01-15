@@ -24,9 +24,9 @@ $(FIELDS)
     id::String
     name::String
     stoichiometry::Dict{String,Int64}
-    ec::Vector{String} # multiple ECs can be assigned to a single reaction
-    pathway::Vector{String} #multiple pathways possible
-    dblinks::Dict{String,Vector{String}}
+    ec::Union{Vector{String},Nothing} # multiple ECs can be assigned to a single reaction
+    pathway::Union{Vector{String},Nothing} #multiple pathways possible
+    dblinks::Union{Dict{String,Vector{String}},Nothing}
 end
 
 """

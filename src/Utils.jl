@@ -151,9 +151,9 @@ function get_kegg_rxn(rxn_id::String)
             id=rxn_id,
             name = out["name"],
             stoichiometry = out["stoich"],
-            ec = out["ec"],
-            pathway = out["pathway"],
-            dblinks = Dict("RHEA" => out["RHEA"])
+            ec = haskey(out, "ec") ? out["ec"] : nothing,
+            pathway = haskey(out, "pathway") ? out["pathway"] : nothing,
+            dblinks = haskey(out, "RHEA") ? Dict("RHEA" => out["RHEA"]) : nothing,
         )
     end
 end
@@ -195,7 +195,7 @@ function get_kegg_met(met_id::String)
         id = met_id,
         name = out["name"],
         formula = haskey(out, "formula") ? out["formula"] : nothing,
-        dblinks = out["dblinks"]
+        dblinks = haskey(out, "dblinks") ? out["dblinks"] : nothing,
     )
 end
 
