@@ -1,7 +1,4 @@
-module Cache
-# copied from stelmo's RheaReactions.jl
 
-using DocStringExtensions
 
 """
 $(TYPEDSIGNATURES)
@@ -20,8 +17,8 @@ end
 $(TYPEDSIGNATURES)
 Checks if the reaction has been cached.
 """
-_is_cached(database::String, id) =
-    isfile(joinpath(RheaReactions.CACHE_LOCATION, database, string(id)))
+_is_cached(database::String, id) = 
+    isfile(joinpath(CACHE_LOCATION, database, string(id)))
 
 """
 $(TYPEDSIGNATURES)
@@ -36,5 +33,3 @@ Cache reaction object.
 """
 _cache(database::String, id, item) =
     serialize(joinpath(CACHE_LOCATION, database, string(id)), item)
-
-end

@@ -1,6 +1,4 @@
-module Types
 
-using DocStringExtensions
 
 """
 $(TYPEDEF)
@@ -39,6 +37,4 @@ $(FIELDS)
     name::String
     formula::Union{String,Nothing}
     dblinks::Union{Dict{String,Vector{String}},Nothing}
-end
-
 end

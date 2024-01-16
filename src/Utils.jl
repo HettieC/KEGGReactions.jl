@@ -1,8 +1,8 @@
-module Utils
 
-using HTTP
-using DocStringExtensions
-using ..Types
+
+
+
+
 
 """
 $(TYPEDSIGNATURES)
@@ -90,71 +90,79 @@ end
 $(TYPEDSIGNATURES)
 Get the reaction name, stoichiometry, and database cross references
 """
-function get_kegg_rxn(rxn_id::String)
+function get_kegg_rxn(rxn_id::String;cache=true)
     if contains(rxn_id, "(G)")
         return nothing
     else
-        req = nothing
-        try
-            req = HTTP.request("GET", "https://rest.kegg.jp/get/$rxn_id")
-        catch
+        if _is_cached("reaction",rxn_id)
+            return _get_cache("reaction",rxn_id)
+        else 
             req = nothing
-            print("No entry matching this id: $rxn_id")
-        end
-        out = Dict{String,Any}()
-        lines = split(String(req.body), "\n")
-        stoich = Dict{String,Int64}()
-        if split(lines[1])[3] != "Reaction"
-            throw(error("Entry $rxn_id not a reaction"))
-        else
-            for ln in lines
-                if startswith(ln, "NAME")
-                    out["name"] = strip(String(split(ln; limit = 2)[2]))
-                elseif startswith(ln, "EQUATION")
-                    subs_prods = split(strip(split(ln, "EQUATION")[2]), "<=>")
-                    subs = [strip(x) for x in split(subs_prods[1], " + ")]
-                    prods = [strip(x) for x in split(subs_prods[2], " + ")]
-                    for s in subs
-                        if startswith(s, "C")
-                            stoich[s] = -1
-                        else
-                            x = split(s)
-                            stoich[String(x[2])] =
-                                isnothing(tryparse(Int64, x[1])) ? 0 :
-                                -tryparse(Int64, x[1])
+            try
+                req = HTTP.request("GET", "https://rest.kegg.jp/get/$rxn_id")
+            catch
+                req = nothing
+                print("No entry matching this id: $rxn_id")
+            end
+            out = Dict{String,Any}()
+            lines = split(String(req.body), "\n")
+            stoich = Dict{String,Int64}()
+            if split(lines[1])[3] != "Reaction"
+                throw(error("Entry $rxn_id not a reaction"))
+            else
+                for ln in lines
+                    if startswith(ln, "NAME")
+                        out["name"] = strip(String(split(ln; limit = 2)[2]))
+                    elseif startswith(ln, "EQUATION")
+                        subs_prods = split(strip(split(ln, "EQUATION")[2]), "<=>")
+                        subs = [strip(x) for x in split(subs_prods[1], " + ")]
+                        prods = [strip(x) for x in split(subs_prods[2], " + ")]
+                        for s in subs
+                            if startswith(s, "C")
+                                stoich[s] = -1
+                            else
+                                x = split(s)
+                                stoich[String(x[2])] =
+                                    isnothing(tryparse(Int64, x[1])) ? 0 :
+                                    -tryparse(Int64, x[1])
+                            end
                         end
-                    end
-                    for p in prods
-                        if startswith(p, "C")
-                            stoich[p] = 1
-                        else
-                            x = split(p)
-                            stoich[String(x[2])] =
-                                isnothing(tryparse(Int64, x[1])) ? 0 : tryparse(Int64, x[1])
+                        for p in prods
+                            if startswith(p, "C")
+                                stoich[p] = 1
+                            else
+                                x = split(p)
+                                stoich[String(x[2])] =
+                                    isnothing(tryparse(Int64, x[1])) ? 0 : tryparse(Int64, x[1])
+                            end
                         end
+                        out["stoich"] = stoich
+                    elseif startswith(ln, "ENZYME")
+                        out["ec"] = [String(strip(split(ln; limit = 2)[2]))]
+                    elseif startswith(ln, "PATHWAY")
+                        out["pathway"] = [String(strip(split(ln; limit = 2)[2]))]
+                    elseif startswith(strip(ln), "rn")
+                        push!(out["pathway"], String(strip(ln)))
+                    elseif contains(ln, "RHEA:") && !haskey(out, "RHEA")
+                        out["RHEA"] = [String(split(ln)[3])]
+                    elseif contains(ln, "RHEA:")
+                        append!(out["RHEA"], String(split(ln)[3]))
                     end
-                    out["stoich"] = stoich
-                elseif startswith(ln, "ENZYME")
-                    out["ec"] = [String(strip(split(ln; limit = 2)[2]))]
-                elseif startswith(ln, "PATHWAY")
-                    out["pathway"] = [String(strip(split(ln; limit = 2)[2]))]
-                elseif startswith(strip(ln), "rn")
-                    push!(out["pathway"], String(strip(ln)))
-                elseif contains(ln, "RHEA:") && !haskey(out, "RHEA")
-                    out["RHEA"] = [String(split(ln)[3])]
-                elseif contains(ln, "RHEA:")
-                    append!(out["RHEA"], String(split(ln)[3]))
                 end
             end
+            rxn = KEGGReaction(;
+                    id=rxn_id,
+                    name = out["name"],
+                    stoichiometry = out["stoich"],
+                    ec = haskey(out, "ec") ? out["ec"] : nothing,
+                    pathway = haskey(out, "pathway") ? out["pathway"] : nothing,
+                    dblinks = haskey(out, "RHEA") ? Dict("RHEA" => out["RHEA"]) : nothing,
+                )
+            if cache
+                _cache("reaction",rxn_id,rxn)
+            end
+            return rxn
         end
-        return Types.KEGGReaction(;
-            id=rxn_id,
-            name = out["name"],
-            stoichiometry = out["stoich"],
-            ec = haskey(out, "ec") ? out["ec"] : nothing,
-            pathway = haskey(out, "pathway") ? out["pathway"] : nothing,
-            dblinks = haskey(out, "RHEA") ? Dict("RHEA" => out["RHEA"]) : nothing,
-        )
     end
 end
 
@@ -164,41 +172,48 @@ export get_kegg_rxn
 $(TYPEDSIGNATURES)
 Get the name and formula of a compound.
 """
-function get_kegg_met(met_id::String)
-    req = nothing
-    try
-        req = HTTP.request("GET", "https://rest.kegg.jp/get/$met_id")
-    catch
-        req = nothing
-        print("No entry matching this id: $met_id")
-    end
-    out = Dict{String,Any}()
-    out["dblinks"] = Dict{String,Vector{String}}()
-    lines = split(String(req.body), "\n")
-    if split(lines[1])[3] != "Compound"
-        throw(error("Entry $met_id not a compound"))
+function get_kegg_met(met_id::String; cache=true)
+    if _is_cached("reaction_metabolites",met_id)
+        return _get_cache("reaction_metabolites",met_id)
     else
-        for ln in lines
-            if startswith(ln, "NAME")
-                out["name"] = String(strip(split(ln; limit = 2)[2]))
-            elseif startswith(ln, "FORMULA")
-                out["formula"] = String(strip(split(ln; limit = 2)[2]))
+        req = nothing
+        try
+            req = HTTP.request("GET", "https://rest.kegg.jp/get/$met_id")
+        catch
+            req = nothing
+            print("No entry matching this id: $met_id")
+        end
+        out = Dict{String,Any}()
+        out["dblinks"] = Dict{String,Vector{String}}()
+        lines = split(String(req.body), "\n")
+        if split(lines[1])[3] != "Compound"
+            throw(error("Entry $met_id not a compound"))
+        else
+            for ln in lines
+                if startswith(ln, "NAME")
+                    out["name"] = String(strip(split(ln; limit = 2)[2]))
+                elseif startswith(ln, "FORMULA")
+                    out["formula"] = String(strip(split(ln; limit = 2)[2]))
 
-            elseif contains(ln, "PubChem:")
-                out["dblinks"]["PubChem"] = [String(strip(split(ln, "PubChem: ")[2]))]
-            elseif contains(ln, "ChEBI:")
-                out["dblinks"]["ChEBI"] = [String(strip(split(ln, "ChEBI: ")[2]))]
+                elseif contains(ln, "PubChem:")
+                    out["dblinks"]["PubChem"] = [String(strip(split(ln, "PubChem: ")[2]))]
+                elseif contains(ln, "ChEBI:")
+                    out["dblinks"]["ChEBI"] = [String(strip(split(ln, "ChEBI: ")[2]))]
+                end
             end
         end
+        met = KEGGMetabolite(
+            id = met_id,
+            name = out["name"],
+            formula = haskey(out, "formula") ? out["formula"] : nothing,
+            dblinks = haskey(out, "dblinks") ? out["dblinks"] : nothing,
+        )
+        if cache 
+            _cache("reaction_metabolites",met_id,met)
+        end
+        return met
     end
-    return Types.KEGGMetabolite(
-        id = met_id,
-        name = out["name"],
-        formula = haskey(out, "formula") ? out["formula"] : nothing,
-        dblinks = haskey(out, "dblinks") ? out["dblinks"] : nothing,
-    )
 end
 
 export get_kegg_met
 
-end
