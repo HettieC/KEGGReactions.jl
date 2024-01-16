@@ -91,6 +91,7 @@ $(TYPEDSIGNATURES)
 Get the reaction name, stoichiometry, and database cross references
 """
 function get_kegg_rxn(rxn_id::String;cache=true, max_retries = 5)
+    rxn = nothing
     if contains(rxn_id, "(G)")
         return nothing
     else
@@ -177,6 +178,7 @@ $(TYPEDSIGNATURES)
 Get the name and formula of a compound.
 """
 function get_kegg_met(met_id::String; cache=true, max_retries = 5)
+    met = nothing
     if _is_cached("reaction_metabolites",met_id)
         return _get_cache("reaction_metabolites",met_id)
     else
