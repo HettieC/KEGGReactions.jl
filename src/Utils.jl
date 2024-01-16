@@ -152,8 +152,8 @@ function get_kegg_rxn(rxn_id::String;cache=true)
             end
             rxn = KEGGReaction(;
                     id=rxn_id,
-                    name = out["name"],
-                    stoichiometry = out["stoich"],
+                    name = haskey(out, "name") ? out["name"] : nothing,
+                    stoichiometry = haskey(out, "stoich") ? out["stoich"] : nothing,
                     ec = haskey(out, "ec") ? out["ec"] : nothing,
                     pathway = haskey(out, "pathway") ? out["pathway"] : nothing,
                     dblinks = haskey(out, "RHEA") ? Dict("RHEA" => out["RHEA"]) : nothing,

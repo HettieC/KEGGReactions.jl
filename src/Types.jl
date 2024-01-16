@@ -20,8 +20,8 @@ $(FIELDS)
 """
 @kwdef mutable struct KEGGReaction
     id::String
-    name::String
-    stoichiometry::Dict{String,Int64}
+    name::Union{String,Nothing}
+    stoichiometry::Union{Dict{String,Int64},Nothing}
     ec::Union{Vector{String},Nothing} # multiple ECs can be assigned to a single reaction
     pathway::Union{Vector{String},Nothing} #multiple pathways possible
     dblinks::Union{Dict{String,Vector{String}},Nothing}
